@@ -68,6 +68,10 @@ var (
 		"0000_50_operator-marketplace_10_clusteroperator.yaml",
 		"0000_50_operator-marketplace_11_service_monitor.yaml",
 		"0000_50_cluster-ingress-operator_02-deployment-ibm-cloud-managed.yaml",
+		"0000_70_cluster-network-operator_02_rbac.yaml",
+		"0000_70_cluster-network-operator_03_deployment.yaml",
+		"0000_70_cluster-network-operator_03_deployment-ibm-cloud-managed.yaml",
+		"0000_70_cluster-network-operator_05_clusteroperator.yaml",
 
 		// TODO: Remove these when cluster profiles annotations are fixed
 		// for cco and auth  operators
