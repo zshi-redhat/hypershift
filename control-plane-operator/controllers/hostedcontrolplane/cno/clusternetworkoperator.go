@@ -2,6 +2,7 @@ package cno
 
 import (
 	"fmt"
+	routev1 "github.com/openshift/api/route/v1"
 	hyperv1 "github.com/openshift/hypershift/api/v1alpha1"
 	"github.com/openshift/hypershift/control-plane-operator/controllers/hostedcontrolplane/kas"
 	"github.com/openshift/hypershift/control-plane-operator/controllers/hostedcontrolplane/manifests"
@@ -53,7 +54,7 @@ func NewParams(hcp *hyperv1.HostedControlPlane, version string, images map[strin
 	p := Params{
 		Images: Images{
 			//NetworkOperator:           images["cluster-network-operator"],
-			NetworkOperator:              "quay.io/pdiak/cno:94b6325f-dirty",
+			NetworkOperator:              "quay.io/zshi/cluster-network-operator:hypershift",
 			SDN:                          images["sdn"],
 			KubeProxy:                    images["kube-proxy"],
 			KubeRBACProxy:                images["kube-rbac-proxy"],
@@ -64,13 +65,13 @@ func NewParams(hcp *hyperv1.HostedControlPlane, version string, images map[strin
 			WhereaboutsCNI:               images["multus-whereabouts-ipam-cni"],
 			RouteOverrideCNI:             images["multus-route-override-cni"],
 			MultusNetworkPolicy:          images["multus-networkpolicy"],
-			OVN:                          images["ovn-kubernetes"],
+			OVN:                          "quay.io/zshi/ovn-daemonset:topology-version",
 			EgressRouterCNI:              images["egress-router-cni"],
 			KuryrDaemon:                  images["kuryr-cni"],
 			KuryrController:              images["kuryr-controller"],
 			NetworkMetricsDaemon:         images["network-metrics-daemon"],
 			NetworkCheckSource:           images["cluster-network-operator"],
-			NetworkCheckTarget:           images["cluster-network-operator"],
+			NetworkCheckTarget:           "quay.io/zshi/cluster-network-operator:hypershift",
 			CloudNetworkConfigController: images["cloud-network-config-controller"],
 		},
 		ReleaseVersion:          version,
@@ -107,6 +108,10 @@ func ReconcileRole(role *rbacv1.Role, ownerRef config.OwnerRef) error {
 				"pods",
 				"deployments",
 				"secrets",
+				"services",
+				"serviceaccounts",
+				"endpoints",
+				"namespaces",
 			},
 			Verbs: []string{
 				"get",
@@ -115,6 +120,47 @@ func ReconcileRole(role *rbacv1.Role, ownerRef config.OwnerRef) error {
 				"create",
 				"list",
 				"watch",
+			},
+		},
+		{
+			APIGroups: []string{"apps"},
+			Resources: []string{
+				"statefulsets",
+				"daemonsets",
+			},
+			Verbs: []string{
+				"get",
+				"patch",
+				"update",
+				"create",
+				"list",
+			},
+		},
+		{
+			APIGroups: []string{"rbac.authorization.k8s.io"},
+			Resources: []string{
+				"roles",
+				"rolebindings",
+				"clusterroles",
+				"clusterrolebindings",
+			},
+			Verbs: []string{
+				"patch",
+				"update",
+				"create",
+				"delete",
+			},
+		},
+		{
+			APIGroups: []string{routev1.SchemeGroupVersion.Group},
+			Resources: []string{
+				"routes",
+			},
+			Verbs: []string{
+				"patch",
+				"update",
+				"create",
+				"delete",
 			},
 		},
 		{
